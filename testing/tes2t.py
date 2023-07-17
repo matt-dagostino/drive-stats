@@ -1,42 +1,18 @@
-import customtkinter as ctk
+import customtkinter, tkinter
 
-def submit_entry():
-    # Retrieve and process the user's input
-    car_name = car_name_entry.get()
-    expense_type = expense_type_entry.get()
-    expense_amount = expense_amount_entry.get()
-    
-    # Perform further processing or saving of the entered data
-    
-    # Clear the input fields
-    car_name_entry.delete(0, ctk.END)
-    expense_type_entry.delete(0, ctk.END)
-    expense_amount_entry.delete(0, ctk.END)
+app = customtkinter.CTk()
+app.grid_rowconfigure(0, weight=1)
+app.grid_columnconfigure(0, weight=1)
 
-# Create the main application window
-window = ctk.CTk()
+# create scrollable textbox
+tk_textbox = tkinter.Text(app, highlightthickness=0)
+tk_textbox.grid(row=0, column=0, sticky="nsew")
 
-# Add a title to the window
-window.title("CarFactsTracker")
+# create CTk scrollbar
+ctk_textbox_scrollbar = customtkinter.CTkScrollbar(app, command=tk_textbox.yview)
+ctk_textbox_scrollbar.grid(row=0, column=1, sticky="ns")
 
-# Create and add labels to the window
-ctk.CTkLabel(window, text="Car Name:").grid(row=0, column=0)
-ctk.CTkLabel(window, text="Expense Type:").grid(row=1, column=0)
-ctk.CTkLabel(window, text="Expense Amount:").grid(row=2, column=0)
+# connect textbox scroll event to CTk scrollbar
+tk_textbox.configure(yscrollcommand=ctk_textbox_scrollbar.set)
 
-# Create and add entry fields to the window
-car_name_entry = ctk.CTkEntry(window)
-car_name_entry.grid(row=0, column=1)
-
-expense_type_entry = ctk.CTkEntry(window)
-expense_type_entry.grid(row=1, column=1)
-
-expense_amount_entry = ctk.CTkEntry(window)
-expense_amount_entry.grid(row=2, column=1)
-
-# Create and add a submit button to the window
-submit_button = ctk.CTkButton(window, text="Submit", command=submit_entry)
-submit_button.grid(row=3, column=0, columnspan=2, pady=10)
-
-# Run the application
-window.mainloop()
+app.mainloop()
