@@ -18,17 +18,39 @@ class App(ctk.CTk):
         self.created_by = ctk.CTkLabel(self, text="created by Matteo Dagostino", text_color="white", font= ("Segoe UI", 20))
         self.created_by.pack()
 
-        self.info_frame = ctk.CTkFrame(self)
-        self.info_frame.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nsw")
+        self.car_name_label = ctk.CTkLabel(self, text="Car Name:", text_color="white", font=("Segoe UI", 20))
+        self.car_name_label.pack(pady=(50,0))
+        self.car_name_entry = ctk.CTkEntry(self)
+        self.car_name_entry.pack()
 
-        self.name = ctk.CTkEntry(self.info_frame, placeholder_text="Name", corner_radius=10)
-        #self.name.grid(row=0,column=0, padx=10,pady=10,sticky="w")
+        self.expense_type_label = ctk.CTkLabel(self, text="Expense Type:", text_color="white", font=("Segoe UI", 20))
+        self.expense_type_label.pack()
+        self.expense_type_entry = ctk.CTkEntry(self)
+        self.expense_type_entry.pack()
 
-        self.button = ctk.CTkButton(self.info_frame, text="Submit Info", command=self.button_event)
-        #self.button.grid(row=0,column=0, padx=10,pady=10,sticky="w")
+        self.expense_amount_label = ctk.CTkLabel(self, text="Expense Amount:", text_color="white", font=("Segoe UI", 20))
+        self.expense_amount_label.pack()
+        self.expense_amount_entry = ctk.CTkEntry(self)
+        self.expense_amount_entry.pack()
 
-    def button_event(): 
-        print("button pressed")
+        self.submit_button = ctk.CTkButton(self, text="Submit", command=self.button_event)
+        self.submit_button.pack()
+
+    def button_event(self):
+        car_name = self.car_name_entry.get()
+        expense_type = self.expense_type_entry.get()
+        expense_amount = self.expense_amount_entry.get()
+
+        # Process the entered data or perform further actions
+
+        # Clear the entry fields
+        self.car_name_entry.delete(0, ctk.END)
+        self.expense_type_entry.delete(0, ctk.END)
+        self.expense_amount_entry.delete(0, ctk.END)
+
+        print("Car Name:", car_name)
+        print("Expense Type:", expense_type)
+        print("Expense Amount:", expense_amount)
 
 
 
