@@ -8,7 +8,7 @@ class Dashboard(ctk.CTk):
         ctk.set_default_color_theme("green")  # Themes: "blue" (standard), "green", "dark-blue"
 
         self.geometry("800x700")
-        self.title("DriveStats Dashboard")
+        self.title("DriveStats")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
