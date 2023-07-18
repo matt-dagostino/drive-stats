@@ -172,23 +172,23 @@ class Dashboard(ctk.CTk):
         self.entry_frame = ctk.CTkScrollableFrame(self.all_activity_frame, width= 850, height=300)
         self.entry_frame.pack(pady=(15, 0), padx=20)
 
-        record_number_lbl = ctk.CTkLabel(self.entry_frame, font=("Segoe UI Semibold", 14), text= "Row #")
-        record_number_lbl.grid(row=0, column=0, pady=(10,0))
+        record_number_lbl = ctk.CTkLabel(self.entry_frame, font=("Segoe UI Semibold", 14), text= "ID")
+        record_number_lbl.grid(row=0, column=0, pady=(5,5))
 
         current_mileage_lbl = ctk.CTkLabel(self.entry_frame, font=("Segoe UI Semibold", 14), text= "Mileage")
-        current_mileage_lbl.grid(row=0, column=1, pady=(10,0))
+        current_mileage_lbl.grid(row=0, column=1, pady=(5,5))
 
         fuel_price_lbl = ctk.CTkLabel(self.entry_frame, font=("Segoe UI Semibold", 14), text= "Fuel Price")
-        fuel_price_lbl.grid(row=0, column=2, pady=(10,0))
+        fuel_price_lbl.grid(row=0, column=2, pady=(5,5))
 
         fuel_amount_lbl = ctk.CTkLabel(self.entry_frame, font=("Segoe UI Semibold", 14), text= "Fuel Amount")
-        fuel_amount_lbl.grid(row=0, column=3, pady=(10,0))
+        fuel_amount_lbl.grid(row=0, column=3, pady=(5,5))
 
         total_amount_lbl = ctk.CTkLabel(self.entry_frame, font=("Segoe UI Semibold", 14), text= "Total Amount")
-        total_amount_lbl.grid(row=0, column=4, pady=(10,0))
+        total_amount_lbl.grid(row=0, column=4, pady=(5,5))
 
         date_lbl = ctk.CTkLabel(self.entry_frame, font=("Segoe UI Semibold", 14), text= "Date")
-        date_lbl.grid(row=0, column=5, pady=(10,0))
+        date_lbl.grid(row=0, column=5, pady=(5,5))
 
 
         connect = sl.connect('record_info.db') 
@@ -196,9 +196,12 @@ class Dashboard(ctk.CTk):
 
         i=1 # row value inside the loop 
         for record in r_set:
-            b = ctk.CTkButton(self.entry_frame, text=i, width = 30, font=("Segoe UI",12, "bold"), fg_color="#FF5555",hover_color= "#ff0021", text_color="black", command=lambda: delete_record(self,e._text))
-            b.grid(row=i, column= 0, pady=5, padx=10) 
+            # b = ctk.CTkButton(self.entry_frame, text=i, width = 30, font=("Segoe UI",12, "bold"), fg_color="#FF5555",hover_color= "#ff0021", text_color="black", command=lambda: print(b._text))
+            # b.grid(row=i, column= 0, pady=5, padx=10) 
             for j in range(len(record)):
+                if (j == 0):
+                    b = ctk.CTkButton(self.entry_frame, text=record[j], width = 30, font=("Segoe UI",12, "bold"), fg_color="#FF5555",hover_color= "#ff0021", text_color="black", command=lambda: print(b._text))
+                    b.grid(row=i, column= 0, pady=5, padx=10) 
                 e = ctk.CTkEntry(self.entry_frame) 
                 e.grid(row=i, column=j+1, pady=5, padx=10) 
                 e.insert(1,record[j])
@@ -207,12 +210,18 @@ class Dashboard(ctk.CTk):
             i=i+1
 
         def delete_record():
+            self.delete_record_window = ctk.CTk()
+            self.delete_record_window.title("Delete record")
+            self.delete_record_window.geometry("300x150")
 
+            
             test = "2023-07-14"
             connect = sl.connect('record_info.db') 
             with connect:
                 connect.execute("DELETE FROM record_info where date is ?", (test,))
-            self.all_activity_frame.destroy()
+            #self.all_activity_frame.destroy()
+
+            self.delete_record_window.mainloop()
             
 
         #connect.close()
@@ -222,7 +231,7 @@ class Dashboard(ctk.CTk):
         self.cancel_button = ctk.CTkButton(self.button_frame3, text="Go Back", command=self.all_activity_frame.destroy, font=("Segoe UI", 14, "bold"), fg_color="#1084cb", hover_color="#094971")
         self.cancel_button.grid(row=0, column=0,padx=10)
         self.delete_certain_record = ctk.CTkButton(self.button_frame3, text="Delete Record", command= delete_record, font=("Segoe UI", 14, "bold"), fg_color="#FF5555", hover_color= "#ff0021")
-        self.delete_certain_record.grid(row=1, column=1, padx=10)
+        self.delete_certain_record.grid(row=0, column=1, padx=10)
 
         self.all_activity_frame.mainloop()
 
