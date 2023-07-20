@@ -1,8 +1,9 @@
 import customtkinter as ctk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 import tkinter as tk
 from datetime import date
 import sqlite3 as sl
+import pandas, matplotlib.pyplot as plt
 
 class Dashboard(ctk.CTk):
     def __init__(self):
@@ -11,6 +12,11 @@ class Dashboard(ctk.CTk):
 
         ctk.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
         ctk.set_default_color_theme("green")  # Themes: "blue" (standard), "green", "dark-blue"
+        connect = sl.connect('record_info.db')
+        r_set=connect.execute('''SELECT current_mileage, fuel_price, fuel_amount, total_amount, date from record_info ORDER BY ID DESC LIMIT 1''');
+        for record in r_set:
+            mileage_amount = record[0]
+            last_updated = record[4]
 
         self.geometry("800x725")
         self.title("DriveStats")
@@ -29,21 +35,28 @@ class Dashboard(ctk.CTk):
         self.mileage_frame.grid(row=0,column=0,padx=20, pady= 20)
         self.mileage_label = ctk.CTkLabel(self.mileage_frame, text="Current Mileage:", font=("Segoe UI", 18, "bold"))
         self.mileage_label.pack(side="top", padx=(20, 20), pady=(10, 0))
-        self.mileage_value_label = ctk.CTkLabel(self.mileage_frame, text="87000 km", font=("Segoe UI", 24))
+        self.mileage_value_label = ctk.CTkLabel(self.mileage_frame, text=mileage_amount, font=("Segoe UI", 24))
         self.mileage_value_label.pack(side="top", pady=(0,10))
 
         self.economy_frame = ctk.CTkFrame(self.mileage_economy_frame, corner_radius=20, border_width=1)
         self.economy_frame.grid(row=0,column=1,padx=20, pady= 20)
+        r_set=connect.execute('''SELECT current_mileage, fuel_amount from record_info ORDER BY ID DESC LIMIT 2''');
+        calc_list = []
+        for record in r_set:
+            calc_list.append(record[0])
+            calc_list.append(record[1])
+        liters_per_100 = round(calc_list[1]/(calc_list[0]-calc_list[2]) *100,1)
+
         self.economy_label = ctk.CTkLabel(self.economy_frame, text="Avg. L/100km:", font=("Segoe UI", 18, "bold"))
         self.economy_label.pack(side="top", padx=(20, 20), pady=(10, 0))
-        self.economy_value_label = ctk.CTkLabel(self.economy_frame, text="12.5", font=("Segoe UI", 24))
+        self.economy_value_label = ctk.CTkLabel(self.economy_frame, text=liters_per_100, font=("Segoe UI", 24))
         self.economy_value_label.pack(side="top", pady=(0,10))
 
         self.last_fill_frame = ctk.CTkFrame(self.mileage_economy_frame, corner_radius=20, border_width=1)
         self.last_fill_frame.grid(row=0,column=2,padx=20, pady= 20)
         self.last_fill_label = ctk.CTkLabel(self.last_fill_frame, text="Last Updated:", font=("Segoe UI", 18, "bold"))
         self.last_fill_label.pack(side="top", padx=(20, 20), pady=(10, 0))
-        self.last_fill_value_label = ctk.CTkLabel(self.last_fill_frame, text="2023-07-06", font=("Segoe UI", 24))
+        self.last_fill_value_label = ctk.CTkLabel(self.last_fill_frame, text=last_updated, font=("Segoe UI", 24))
         self.last_fill_value_label.pack(side="top", pady=(0,10))
 
         self.recent_act_frame = ctk.CTkFrame(self, corner_radius=20, border_width=5)
@@ -65,15 +78,9 @@ class Dashboard(ctk.CTk):
         date_lbl = ctk.CTkLabel(self.recent_act_frame2, font=("Segoe UI Semibold", 14), text= "Date")
         date_lbl.grid(row=0, column=4, pady=(5,0),padx = 20)
 
-        connect = sl.connect('record_info.db') 
         r_set=connect.execute('''SELECT current_mileage, fuel_price, fuel_amount, total_amount, date from record_info ORDER BY ID DESC LIMIT 1''');
         for record in r_set:
-            # b = ctk.CTkButton(self.entry_frame, text=i, width = 30, font=("Segoe UI",12, "bold"), fg_color="#FF5555",hover_color= "#ff0021", text_color="black", command=lambda: print(b._text))
-            # b.grid(row=i, column= 0, pady=5, padx=10) 
             for j in range(len(record)):
-                # if (j == 0):
-                #     b = ctk.CTkButton(self.recent_act_frame2, text=record[j], width = 30, font=("Segoe UI",12, "bold"), fg_color="#FF5555",hover_color= "#ff0021", text_color="black", command=lambda: print(b._text))
-                #     b.grid(row=0, column= 0, pady=5, padx=10) 
                 e = ctk.CTkEntry(self.recent_act_frame2, width=100) 
                 e.grid(row=1, column=j, pady=(5,10), padx=5) 
                 e.insert(1,record[j])
@@ -93,8 +100,26 @@ class Dashboard(ctk.CTk):
         self.button_frame.pack(pady=(15, 0))
         self.add_record_button = ctk.CTkButton(self.button_frame, text="+ Add Record", command=self.add_record, font=("Segoe UI Semibold", 20), width=200, height=50, corner_radius=10)
         self.add_record_button.pack(side="left", padx=(0, 20))
-        self.view_report_button = ctk.CTkButton(self.button_frame, text="View Report", command=print("View Report"), font=("Segoe UI Semibold", 20), width=200, height=50, corner_radius=10)
+        self.view_report_button = ctk.CTkButton(self.button_frame, text="View Report", command=self.view_report, font=("Segoe UI Semibold", 20), width=200, height=50, corner_radius=10)
         self.view_report_button.pack(side="left")
+    
+    def view_report(self):
+        connect = sl.connect('record_info.db')
+        sql = "SELECT total_amount, date FROM record_info"
+        data = pandas.read_sql(sql, connect)
+
+        self.view_report_window = ctk.CTk()
+        self.view_report_window.title("View Report")
+        self.view_report_window.geometry("900x800")
+
+        plt.bar(data.date, data.total_amount)
+        plt.title("testing charts")
+        plt.show()
+
+
+        self.view_report_window.mainloop()
+
+
 
     def add_record(self):
         # Create a new Toplevel window for record entry
