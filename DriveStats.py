@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import ttk 
+from tkinter import ttk, messagebox
 import tkinter as tk
 from datetime import date
 import sqlite3 as sl
@@ -12,7 +12,7 @@ class Dashboard(ctk.CTk):
         ctk.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
         ctk.set_default_color_theme("green")  # Themes: "blue" (standard), "green", "dark-blue"
 
-        self.geometry("800x700")
+        self.geometry("800x725")
         self.title("DriveStats")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -48,13 +48,39 @@ class Dashboard(ctk.CTk):
 
         self.recent_act_frame = ctk.CTkFrame(self, corner_radius=20, border_width=5)
         self.recent_act_frame.pack(pady=(0, 30), padx=80, fill="x")
-        self.recent_activity_label = ctk.CTkLabel(self.recent_act_frame, text="Recent Activity:", font=("Segoe UI", 18, "bold"))
+        self.recent_activity_label = ctk.CTkLabel(self.recent_act_frame, text="Most Recent Activity", font=("Segoe UI", 18, "bold"))
         self.recent_activity_label.pack(pady=(20, 10))
-        self.recent_activity_text = ctk.CTkTextbox(self.recent_act_frame, width=250, height=10, fg_color="grey", font=("Segoe UI", 12))
-        self.recent_activity_text.configure(state='disabled')
-        self.recent_activity_text.pack(pady=(0, 20))
+
+        self.recent_act_frame2 = ctk.CTkFrame(self.recent_act_frame, corner_radius=15)
+        self.recent_act_frame2.pack()
+
+        current_mileage_lbl = ctk.CTkLabel(self.recent_act_frame2, font=("Segoe UI Semibold", 14), text= "Mileage")
+        current_mileage_lbl.grid(row=0, column=0, pady=(5,0),padx = 20)
+        fuel_price_lbl = ctk.CTkLabel(self.recent_act_frame2, font=("Segoe UI Semibold", 14), text= "Fuel Price")
+        fuel_price_lbl.grid(row=0, column=1, pady=(5,0),padx = 20)
+        fuel_amount_lbl = ctk.CTkLabel(self.recent_act_frame2, font=("Segoe UI Semibold", 14), text= "Fuel Amount")
+        fuel_amount_lbl.grid(row=0, column=2, pady=(5,0),padx = 20)
+        total_amount_lbl = ctk.CTkLabel(self.recent_act_frame2, font=("Segoe UI Semibold", 14), text= "Total Amount")
+        total_amount_lbl.grid(row=0, column=3, pady=(5,0),padx = 20)
+        date_lbl = ctk.CTkLabel(self.recent_act_frame2, font=("Segoe UI Semibold", 14), text= "Date")
+        date_lbl.grid(row=0, column=4, pady=(5,0),padx = 20)
+
+        connect = sl.connect('record_info.db') 
+        r_set=connect.execute('''SELECT current_mileage, fuel_price, fuel_amount, total_amount, date from record_info ORDER BY ID DESC LIMIT 1''');
+        for record in r_set:
+            # b = ctk.CTkButton(self.entry_frame, text=i, width = 30, font=("Segoe UI",12, "bold"), fg_color="#FF5555",hover_color= "#ff0021", text_color="black", command=lambda: print(b._text))
+            # b.grid(row=i, column= 0, pady=5, padx=10) 
+            for j in range(len(record)):
+                # if (j == 0):
+                #     b = ctk.CTkButton(self.recent_act_frame2, text=record[j], width = 30, font=("Segoe UI",12, "bold"), fg_color="#FF5555",hover_color= "#ff0021", text_color="black", command=lambda: print(b._text))
+                #     b.grid(row=0, column= 0, pady=5, padx=10) 
+                e = ctk.CTkEntry(self.recent_act_frame2, width=100) 
+                e.grid(row=1, column=j, pady=(5,10), padx=5) 
+                e.insert(1,record[j])
+                e.configure(state='disabled')
+
         self.recent_activity_show_more = ctk.CTkButton(self.recent_act_frame, text="View All Activity", command=self.view_all_activity, font=("Segoe UI Semibold", 15), cursor="hand2")
-        self.recent_activity_show_more.pack(pady = (0,20))
+        self.recent_activity_show_more.pack(pady = (20,20))
 
         self.linkedin_frame = ctk.CTkFrame(self, corner_radius=20, border_width=5)
         self.linkedin_frame.pack(pady=(0, 30), padx=80, fill="x")
@@ -145,11 +171,8 @@ class Dashboard(ctk.CTk):
                 print("Start")
                 for row in testing:
                     print(row)
-            self.current_mileage_entry.delete(0, 'end')
-            self.fuel_price_entry.delete(0, 'end')
-            self.fuel_amount_entry.delete(0, 'end')
-            self.total_amount_entry.delete(0, 'end')
-            self.date_entry.delete(0, 'end')
+            self.fuelup_window.destroy()
+            self.record_window.destroy()
 
             connect.close()
 
@@ -214,12 +237,27 @@ class Dashboard(ctk.CTk):
             self.delete_record_window.title("Delete record")
             self.delete_record_window.geometry("300x150")
 
-            
-            test = "2023-07-14"
-            connect = sl.connect('record_info.db') 
-            with connect:
-                connect.execute("DELETE FROM record_info where date is ?", (test,))
-            #self.all_activity_frame.destroy()
+            self.delete_record_lbl = ctk.CTkLabel(self.delete_record_window, text="Which record would you like to delete?", font=("Segoe UI",15, "bold"))
+            self.delete_record_lbl.pack(pady=10)
+
+            self.delete_which_record = ctk.CTkEntry(self.delete_record_window, placeholder_text="0")
+            self.delete_which_record.pack(pady=10)
+
+            self.button_frame4 = ctk.CTkFrame(self.delete_record_window, fg_color="transparent")
+            self.button_frame4.pack(pady=10)
+
+            self.delete_record_button = ctk.CTkButton(self.button_frame4, text="Delete Record", font=("Segoe UI",12, "bold"), fg_color="#FF5555",hover_color= "#ff0021", text_color="black", command=lambda: delete_record(self.delete_which_record.get()), width=50)
+            self.delete_record_button.grid(row=0, column=1,padx=5)
+
+            self.cancel_record_button = ctk.CTkButton(self.button_frame4, text="Cancel", font=("Segoe UI",12, "bold"), command=lambda: self.delete_record_window.destroy(), fg_color="#1084cb", hover_color="#094971", width=80)
+            self.cancel_record_button.grid(row=0, column=0,padx=5)
+
+            def delete_record(id):
+                connect = sl.connect('record_info.db') 
+                with connect:
+                    connect.execute("DELETE FROM record_info where id is ?", (id,))
+                self.delete_record_window.destroy()
+                self.all_activity_frame.destroy()
 
             self.delete_record_window.mainloop()
             
