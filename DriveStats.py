@@ -113,7 +113,7 @@ class Dashboard(ctk.CTk):
         self.view_report_window.geometry("900x800")
 
         plt.bar(data.date, data.total_amount)
-        plt.title("testing charts")
+        plt.title("Your Data Visualized")
         plt.show()
 
 
